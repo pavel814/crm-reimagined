@@ -22,11 +22,11 @@ function ResetPassword() {
     const data = new FormData(event.currentTarget);
     const password = String(data.get("password") ?? "");
     const confirmation = String(data.get("confirmation") ?? "");
-    if (password !== confirmation) return toast.error("Пароли не совпадают");
+    if (password !== confirmation) { toast.error("Пароли не совпадают"); return; }
     setBusy(true);
     const { error } = await supabase.auth.updateUser({ password });
     setBusy(false);
-    if (error) return toast.error("Не удалось изменить пароль", { description: error.message });
+    if (error) { toast.error("Не удалось изменить пароль", { description: error.message }); return; }
     toast.success("Пароль обновлён");
     await navigate({ to: "/import" });
   }

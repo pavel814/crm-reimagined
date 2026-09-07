@@ -41,7 +41,7 @@ function ImportPage() {
 
   async function chooseFile(selected?: File) {
     if (!selected) return;
-    if (!/\.(csv|xlsx|xls)$/i.test(selected.name)) return toast.error("Выберите файл CSV, XLS или XLSX");
+    if (!/\.(csv|xlsx|xls)$/i.test(selected.name)) { toast.error("Выберите файл CSV, XLS или XLSX"); return; }
     setChecking(true);
     try {
       const XLSX = await import("xlsx");
@@ -61,11 +61,11 @@ function ImportPage() {
   const validRows = useMemo(() => rows.filter((row) => mapping.name && String(row[mapping.name] ?? "").trim()), [rows, mapping.name]);
 
   async function importClients() {
-    if (!file || !mapping.name) return toast.error("Выберите колонку с именем");
+    if (!file || !mapping.name) { toast.error("Выберите колонку с именем"); return; }
     setImporting(true);
     const { data: userData } = await supabase.auth.getUser();
     const user = userData.user;
-    if (!user) { setImporting(false); return toast.error("Сессия завершилась. Войдите снова."); }
+    if (!user) { setImporting(false); toast.error("Сессия завершилась. Войдите снова."); return; }
     const normalized = validRows.map((row) => ({ owner_id: user.id, name: String(row[mapping.name] ?? "").trim(), phone: mapping.phone ? String(row[mapping.phone] ?? "").trim() || null : null, email: mapping.email ? String(row[mapping.email] ?? "").trim().toLowerCase() || null : null, pet_name: mapping.pet ? String(row[mapping.pet] ?? "").trim() || null : null, source: "import" }));
     const { data: existing } = await supabase.from("clients").select("email, phone");
     const duplicate = normalized.filter((row) => (row.email && existing?.some((item) => item.email === row.email)) || (row.phone && existing?.some((item) => item.phone === row.phone)));
@@ -74,7 +74,7 @@ function ImportPage() {
     const failed = error ? fresh.length : 0;
     await supabase.from("import_jobs").insert({ owner_id: user.id, filename: file.name, status: error ? "failed" : "completed", total_rows: rows.length, imported_rows: error ? 0 : fresh.length, duplicate_rows: duplicate.length, error_rows: rows.length - validRows.length + failed });
     setImporting(false);
-    if (error) return toast.error("Импорт не завершён", { description: error.message });
+    if (error) { toast.error("Импорт не завершён", { description: error.message }); return; }
     toast.success(`Добавлено клиентов: ${fresh.length}`, { description: duplicate.length ? `Пропущено дублей: ${duplicate.length}` : undefined });
     setFile(null); setRows([]); setColumns([]); setMapping({ name: "", phone: "", email: "", pet: "" }); await loadJobs();
   }

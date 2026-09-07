@@ -38,7 +38,7 @@ function BookingPage() {
     const form = new FormData(event.currentTarget); setBusy(true);
     const { error } = await supabase.from("bookings").insert({ owner_id: service.owner_id, service_id: service.id, starts_at: chosen.toISOString(), customer_name: String(form.get("name") ?? "").trim(), customer_email: String(form.get("email") ?? "").trim(), customer_phone: String(form.get("phone") ?? "").trim() || null, pet_name: String(form.get("pet") ?? "").trim(), comment: String(form.get("comment") ?? "").trim() || null });
     setBusy(false);
-    if (error) return toast.error(error.code === "23505" ? "Это время уже занято" : "Не удалось создать запись", { description: error.code === "23505" ? "Выберите другой свободный слот." : error.message });
+    if (error) { toast.error(error.code === "23505" ? "Это время уже занято" : "Не удалось создать запись", { description: error.code === "23505" ? "Выберите другой свободный слот." : error.message }); return; }
     setComplete(true);
   }
 

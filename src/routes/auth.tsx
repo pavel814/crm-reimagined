@@ -43,7 +43,7 @@ function AuthPage() {
     if (mode === "login") {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       setBusy(false);
-      if (error) return toast.error("Не удалось войти", { description: error.message });
+      if (error) { toast.error("Не удалось войти", { description: error.message }); return; }
       toast.success("С возвращением!");
       await navigate({ to: "/import" });
       return;
@@ -56,8 +56,8 @@ function AuthPage() {
       options: { emailRedirectTo: window.location.origin, data: { display_name: displayName, workspace_name: workspaceName } },
     });
     setBusy(false);
-    if (error) return toast.error("Не удалось создать аккаунт", { description: error.message });
-    if (!data.session) return toast.success("Проверьте почту", { description: "Мы отправили ссылку для подтверждения аккаунта." });
+    if (error) { toast.error("Не удалось создать аккаунт", { description: error.message }); return; }
+    if (!data.session) { toast.success("Проверьте почту", { description: "Мы отправили ссылку для подтверждения аккаунта." }); return; }
     await navigate({ to: "/import" });
   }
 
